@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>DriveSwitch</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <header class="header">
+      <h1>DriveSwitch</h1>
+      <p class="tagline">Transfert de panier drive · revue manuelle</p>
+    </header>
+
+    <section class="panel" id="setup">
+      <h2>1. Onglets</h2>
+      <p class="hint">
+        Ouvrez deux onglets déjà connectés (source + cible), puis assignez-les ici.
+      </p>
+      <label>
+        Source
+        <select id="sourceTab"></select>
+      </label>
+      <label>
+        Cible
+        <select id="targetTab"></select>
+      </label>
+      <div class="row">
+        <button type="button" id="btnRefreshTabs" class="secondary">Rafraîchir</button>
+        <button type="button" id="btnStart" class="primary">Lire &amp; matcher</button>
+      </div>
+      <p id="setupStatus" class="status" role="status"></p>
+    </section>
+
+    <section class="panel" id="reviewSection" hidden>
+      <h2>2. Revue</h2>
+      <p class="hint">Acceptez, refusez ou choisissez une alternative. Rien n’est ajouté sans action.</p>
+      <ul id="reviewList" class="review-list"></ul>
+      <div class="row">
+        <button type="button" id="btnAcceptHigh" class="secondary">Accepter haute confiance</button>
+        <button type="button" id="btnCommit" class="primary">Ajouter les acceptés</button>
+      </div>
+    </section>
+
+    <section class="panel" id="summarySection" hidden>
+      <h2>3. Résumé</h2>
+      <p id="summaryText" class="status"></p>
+      <button type="button" id="btnReset" class="secondary">Nouveau transfert</button>
+    </section>
+
+    <footer class="footer">
+      <p>Aucun identifiant stocké · stubs enseignes en phase 0</p>
+    </footer>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
