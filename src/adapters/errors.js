@@ -4,7 +4,7 @@
 export class AdapterError extends Error {
   /**
    * @param {string} message
-   * @param {{ code?: string, cause?: unknown } } [opts]
+   * @param {{ code?: string, cause?: unknown }} [opts]
    */
   constructor(message, opts = {}) {
     super(message);
