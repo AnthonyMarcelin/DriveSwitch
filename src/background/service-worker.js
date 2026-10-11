@@ -195,6 +195,8 @@ async function commitAccepted() {
     });
     if (res?.ok) ok += 1;
     else failed += 1;
+    // Cadence humaine — limite DataDome / anti-bot enseignes
+    await new Promise((r) => setTimeout(r, 400));
   }
 
   state.summary = { ok, failed, skipped };

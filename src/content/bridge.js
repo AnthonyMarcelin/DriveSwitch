@@ -6,12 +6,11 @@ const adapter = adapterForHost(location.hostname);
 chrome.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   handle(message)
     .then(sendResponse)
-    .catch((err) =>
-      sendResponse({
-        ok: false,
-        error: err instanceof Error ? err.message : String(err),
-      }),
-    );
+    .catch((err) => {
+      const error = err instanceof Error ? err.message : String(err);
+      console.error('[DriveSwitch]', error, err);
+      sendResponse({ ok: false, error });
+    });
   return true;
 });
 
