@@ -145,7 +145,7 @@ function renderState(state) {
 
   if (state.error) setStatus(state.error, true);
   else if (state.phase === 'review') {
-    const stub = state.sourceCart?.stub ? ' (panier stub — DOM non branché)' : '';
+    const stub = state.sourceCart?.stub ? ' (données démo)' : '';
     setStatus(
       `Panier source : ${state.sourceCart?.lines?.length ?? 0} ligne(s)${stub}. Validez les équivalents.`,
       false,
@@ -165,7 +165,7 @@ function renderState(state) {
   const showSummary = state.phase === 'done' && state.summary;
   el.summarySection.hidden = !showSummary;
   if (showSummary && state.summary) {
-    el.summaryText.textContent = `Ajoutés : ${state.summary.ok} · Échecs : ${state.summary.failed} · Ignorés : ${state.summary.skipped}. (addToCart encore stub → échecs attendus)`;
+    el.summaryText.textContent = `Ajoutés : ${state.summary.ok} · Échecs : ${state.summary.failed} · Ignorés : ${state.summary.skipped}.`;
   }
 }
 
