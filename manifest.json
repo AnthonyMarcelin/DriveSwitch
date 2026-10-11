@@ -1,0 +1,49 @@
+{
+  "manifest_version": 3,
+  "name": "DriveSwitch",
+  "version": "0.1.0",
+  "description": "Transférez un panier drive d'une enseigne française vers une autre, avec revue manuelle des équivalents.",
+  "default_locale": "fr",
+  "icons": {
+    "16": "icons/icon-16.png",
+    "32": "icons/icon-32.png",
+    "48": "icons/icon-48.png",
+    "128": "icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "DriveSwitch",
+    "default_popup": "src/popup/popup.html",
+    "default_icon": {
+      "16": "icons/icon-16.png",
+      "32": "icons/icon-32.png",
+      "48": "icons/icon-48.png"
+    }
+  },
+  "background": {
+    "service_worker": "src/background/service-worker.js",
+    "type": "module"
+  },
+  "permissions": ["tabs", "scripting", "storage"],
+  "host_permissions": [
+    "*://*.leclercdrive.fr/*",
+    "*://*.carrefour.fr/*",
+    "*://*.auchan.fr/*"
+  ],
+  "content_scripts": [
+    {
+      "matches": [
+        "*://*.leclercdrive.fr/*",
+        "*://*.carrefour.fr/*",
+        "*://*.auchan.fr/*"
+      ],
+      "js": ["src/content/bridge.js"],
+      "run_at": "document_idle"
+    }
+  ],
+  "browser_specific_settings": {
+    "gecko": {
+      "id": "driveswitch@local.dev",
+      "strict_min_version": "109.0"
+    }
+  }
+}

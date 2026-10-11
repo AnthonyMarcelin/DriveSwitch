@@ -1,0 +1,10 @@
+{
+  "extName": {
+    "message": "DriveSwitch",
+    "description": "Nom de l'extension"
+  },
+  "extDescription": {
+    "message": "Transférez un panier drive d'une enseigne française vers une autre, avec revue manuelle des équivalents.",
+    "description": "Description store / navigateur"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "name": "driveswitch",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Extension navigateur — transfert de panier drive FR (Safari / Chrome / Firefox)",
+  "type": "module",
+  "scripts": {
+    "build": "node scripts/build.mjs",
+    "watch": "node scripts/build.mjs --watch",
+    "test:smoke": "node scripts/smoke-match.mjs",
+    "clean": "rm -rf dist"
+  },
+  "devDependencies": {
+    "esbuild": "^0.25.0"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}
