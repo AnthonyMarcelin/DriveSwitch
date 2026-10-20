@@ -6,43 +6,52 @@ Produit gratuit, sans compte DriveSwitch, **sans stockage d’identifiants** : v
 
 Dépôt : https://github.com/AnthonyMarcelin/DriveSwitch
 
-## Enseignes MVP
+## Enseignes MVP — réel vs fragile
 
-| Enseigne | Host | `detect` | `readCart` | `searchProduct` | `addToCart` |
+| Enseigne | Host | Lecture panier | Recherche | Ajout panier | Fragilité |
 |---|---|---|---|---|---|
-| E.Leclerc Drive | `*.leclercdrive.fr` | réel | stub | stub | stub |
-| Carrefour | `*.carrefour.fr` | réel | stub | stub | stub |
-| Auchan | `*.auchan.fr` | réel | stub | stub | stub |
+| E.Leclerc Drive | `*.leclercdrive.fr` | HTML magasin (`lstProduits`) | `recherche.aspx` | `POST panier.aspx?op=1` | **DataDome** si trop rapide ; URL doit contenir `/magasin-XXXXX-…/` |
+| Carrefour | `*.carrefour.fr` | `GET /api/cart` | `GET /s` (+ EAN via `POST /products`) | `PATCH /api/cart` | Cloudflare / session SSO ; besoin d’un **drive choisi** (`basketServiceId`) |
+| Auchan | `*.auchan.fr` | `GET /cart` | HTML `/recherche?text=` | `POST /cart/update` | Drive / mode retrait requis ; parsing HTML fiche produit (offerId) |
 
-Les stubs renvoient un panier / des résultats de démo pour exercer le flux UI + matching. Les sélecteurs DOM restent à brancher après inspection sur Mac.
+Les appels partent **depuis l’onglet** (`credentials: 'include'`) : cookies + anti-bot du navigateur, pas de proxy DriveSwitch.
 
 ## Prérequis
 
 - Node.js 18+
-- Un navigateur : **Safari (prioritaire)**, Chrome, ou Firefox
+- Compte déjà connecté sur les enseignes (dans le navigateur)
 
 ```bash
+git clone https://github.com/AnthonyMarcelin/DriveSwitch.git
 cd DriveSwitch
 npm install
 npm run build
 ```
 
-Le paquet chargeable est le dossier **`dist/`**.
+Chargez toujours le dossier **`dist/`**.
 
-## Flux utilisateur (2 onglets)
+## Flux (2 onglets)
 
-1. Ouvrez l’enseigne **source** (panier rempli) et l’enseigne **cible** (drive déjà choisi), sessions déjà connectées.
-2. Ouvrez la popup DriveSwitch.
-3. Assignez Source / Cible → **Lire & matcher**.
-4. Revue ligne par ligne : accepter / refuser / alternative / ignorer.
-5. **Ajouter les acceptés** → résumé (ajouts / échecs / ignorés).
+1. Onglet **source** : panier rempli, drive actif.
+2. Onglet **cible** : **même type de parcours** (drive déjà sélectionné), session connectée.
+3. Popup DriveSwitch → Source / Cible → **Lire & matcher**.
+4. Revue : accepter / refuser / alternative.
+5. **Ajouter les acceptés** → résumé OK / échecs / ignorés.
 
-Tant que `addToCart` est stub, les ajouts échouent volontairement avec un message clair.
+## Test local — Chrome (recommandé d’abord)
 
-## Installation — Safari (dev, Mac)
+1. `npm run build`
+2. `chrome://extensions` → Mode développeur → **Charger l’extension non empaquetée** → `dist/`
+3. Ouvrir p.ex. Leclerc (page magasin) + Carrefour (drive choisi), paniers prêts.
+4. Épingler DriveSwitch → assigner les onglets → Lire & matcher → accepter 1–2 lignes → Ajouter.
+5. Vérifier le panier cible sur le site.
 
-1. Sur votre Mac : `npm install && npm run build`
-2. Convertir l’extension :
+Si erreur rouge dans la popup : lire le message (session, drive non choisi, EAN manquant, HTTP 403…).
+
+## Test local — Safari (Mac)
+
+1. `npm run build`
+2. Convertir :
 
    ```bash
    xcrun safari-web-extension-converter /chemin/vers/DriveSwitch/dist \
@@ -51,46 +60,32 @@ Tant que `addToCart` est stub, les ajouts échouent volontairement avec un messa
      --bundle-identifier dev.local.DriveSwitch
    ```
 
-3. Ouvrir le projet Xcode généré → Run (cible macOS).
-4. Safari → Réglages → **Avancé** → cocher « Afficher le menu Développement ».
-5. Développement → **Autoriser les extensions non signées** (session de debug).
-6. Safari → Réglages → **Extensions** → activer DriveSwitch.
-7. Ouvrir deux onglets enseignes supportées et tester la popup.
+3. Xcode → Run → activer l’extension (menu Développement → extensions non signées).
+4. Même flux 2 onglets que Chrome.
 
-## Installation — Chrome
+## Firefox
 
-1. `npm run build`
-2. Chrome → `chrome://extensions` → Mode développeur
-3. **Charger l’extension non empaquetée** → sélectionner `dist/`
-4. Épingler DriveSwitch, ouvrir 2 onglets enseignes, lancer la popup
-
-## Installation — Firefox
-
-1. `npm run build`
-2. Firefox → `about:debugging#/runtime/this-firefox`
-3. **Charger un module complémentaire temporaire** → `dist/manifest.json`
+`about:debugging` → module temporaire → `dist/manifest.json`.
 
 ## Architecture
 
 ```
-src/
-  adapters/          Contrat StoreAdapter + Leclerc / Carrefour / Auchan
-  matching/          EAN exact puis fuzzy (nom / marque / contenance)
-  content/bridge.js  Messages DOM ↔ background
-  background/        Orchestration transfert + état court
-  popup/             UI sélection onglets + revue + résumé
-  shared/            Messages + types JSDoc
-scripts/build.mjs    Bundle esbuild → dist/ (IIFE, Safari-friendly)
+src/adapters/
+  selectors.js   Endpoints / sélecteurs centralisés
+  http.js        fetch credentials + parse JSON embarqué
+  errors.js      AdapterError → messages UI
+  leclerc.js | carrefour.js | auchan.js
+src/matching/    ReadEAN puis fuzzy
+src/popup/       Revue manuelle
 ```
 
-## Limites actuelles (phase 0)
+## Limites
 
-- Lecture / recherche / ajout panier = **stubs**
-- Pas de mémoire locale des paires acceptées
-- Pas de backend
-- Distribution store non préparée
+- Pas de validation E2E connectée depuis le cloud (pas de vos sessions).
+- Matching fuzzy imparfait sur MDD.
+- Redesign enseigne → adapter `selectors.js` / parseurs.
+- Pas de checkout, pas de stockage de mots de passe.
 
 ## Confidentialité
 
-- Aucun login / mot de passe stocké ni transmis par l’extension
-- Les cookies de session restent ceux du navigateur
+Aucun login stocké ni envoyé à un serveur DriveSwitch. Session = cookies du navigateur uniquement.

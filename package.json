@@ -7,7 +7,7 @@
   "scripts": {
     "build": "node scripts/build.mjs",
     "watch": "node scripts/build.mjs --watch",
-    "test:smoke": "node scripts/smoke-match.mjs",
+    "test:smoke": "node scripts/smoke-match.mjs && node scripts/smoke-adapters.mjs",
     "clean": "rm -rf dist"
   },
   "devDependencies": {

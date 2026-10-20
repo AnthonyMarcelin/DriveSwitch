@@ -35,6 +35,9 @@
  * @property {string} [unit]
  * @property {number} [capacityValue]
  * @property {string} [capacityUnit]
+ * @property {string} [basketServiceId]  Carrefour / Leclerc store context
+ * @property {string} [subBasketType]   Carrefour (ex. drive_clcv)
+ * @property {string} [offerId]         Auchan offer liée au drive courant
  * @property {boolean} [stub]
  *
  * @typedef {'ean' | 'fuzzy' | 'none'} MatchMethod
